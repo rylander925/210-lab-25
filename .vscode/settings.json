@@ -10,6 +10,8 @@
         "xutility": "cpp",
         "xstring": "cpp",
         "iostream": "cpp",
-        "xiosbase": "cpp"
+        "xiosbase": "cpp",
+        "vector": "cpp",
+        "iosfwd": "cpp"
     }
 }
