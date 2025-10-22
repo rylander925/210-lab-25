@@ -14,9 +14,9 @@ IDE Used: Visual Studio Code
 using namespace std;
 using namespace chrono;
 
-template <typename T> milliseconds Read(list<T>& list, ifstream input);
-template <typename T> milliseconds Read(set<T>& set, ifstream input);
-template <typename T> milliseconds Read(vector<T>& vector, ifstream input);
+template <typename T> milliseconds Read(list<T>& list, ifstream& input);
+template <typename T> milliseconds Read(set<T>& set, ifstream& input);
+template <typename T> milliseconds Read(vector<T>& vector, ifstream& input);
 
 template <typename T> milliseconds TimeSort(vector<T>& vector);
 template <typename T> milliseconds TimeSort(list<T>& list);
@@ -25,27 +25,11 @@ template <typename T> milliseconds TimeInsert(vector<T>& vector, T value);
 template <typename T> milliseconds TimeInsert(set<T>& set, T value);
 template <typename T> milliseconds TimeInsert(list<T>& list, T value);
 
-template <typename T> vector<milliseconds> ReadRace()
+template <typename T> vector<milliseconds> ReadRace(list<T>& list, set<T>& set, vector<T>& vector, string filename);
 
 int main() {
     const string FILENAME = "codes.txt";
     list<string> list;
-    cout << ReadCodes(list.begin(), list.end(), FILENAME)
-
-    ifstream infile;
-    infile.open(filename);
-    if (!infile.is_open()) {
-        cout << "Error opening file " << filename << endl;
-        throw ios_base::failure("File open error");
-    }
-
-    istream *input = &infile;
-    auto duration = Read(begin, end, input);
-
-    infile.close();
-
-    return duration;
-}
     
 
     return 0;
@@ -59,17 +43,95 @@ duration.count() references elapsed milliseconds
 */
 
 /**
- * Time how long it takes to read data from an input stream into a ADT using iterators
- * @param begin Iterator to beginning of ADT
- * @param end Iterator to end of ADT
- * @param input Input stream to read into ADT
+ * Run race for read operations on given list, set vector
+ * Returns vector of durations, ordered [0] list, [1] set, [2] vector
+ * @param list List to read to
+ * @param set Set to read to
+ * @param vector Vector to read to
+ * @param filename File to read data from
+ * @return Vector of durations in milliseconds, ordered list, set, vector
+ */
+template <typename T> vector<milliseconds> ReadRace(list<T>& list, set<T>& set, vector<T>& vector, string filename) {
+    vector<milliseconds> durations;
+
+    //Verify file opens properly
+    ifstream infile;
+    infile.open(filename);
+    if (!infile.is_open()) {
+        cout << "Error opening file " << filename << endl;
+        throw ios_base::failure("File open error");
+    }
+
+    //Time read operation for the list
+    durations.push_back(Read(list, infile));
+
+    //Reset file stream to beginning
+    infile.clear();
+    infile.seekg(0);
+
+    //Time read operation for set
+    durations.push_back(Read(set, infile));
+    infile.clear();
+    infile.seekg(0);
+
+    //Time read operation for vector
+    durations.push_back(Read(vector, infile));
+
+    infile.close();
+
+    return durations;
+}
+/**
+ * Time how long it takes to read data into a list
+ * @param list List to read data to
+ * @param input Input stream to read from
  * @return Duration in milliseconds
  */
-template <typename T> milliseconds Read(T::iterator& begin, T::iterator& end, ifstream input) {
+template <typename T> milliseconds Read(list<T>& list, ifstream& input) {
     auto start = high_resolution_clock::now();
 
-    for (T::iterator it = begin; it != end; it++) {
-        getline(*input, *it);
+    //Read all data from input stream and add to list
+    T value;
+    while (getline(input, value)) {
+        list.push_back(value);
+    }
+
+    auto end = high_resolution_clock::now();
+    return duration_cast<milliseconds>(end - start);
+}
+
+/**
+ * Time how long it takes to read data into a set
+ * @param set Set to read data to
+ * @param input Input stream to read from
+ * @return Duration in milliseconds
+ */
+template <typename T> milliseconds Read(set<T>& set, ifstream& input) {
+    auto start = high_resolution_clock::now();
+
+    //Read all data from input stream and add to set
+    T value;
+    while (getline(input, value)) {
+        set.insert(value);
+    }
+
+    auto end = high_resolution_clock::now();
+    return duration_cast<milliseconds>(end - start);
+}
+
+/**
+ * Time how long it takes to read data into a vector
+ * @param vector Vector to read data to
+ * @param input Input stream to read from
+ * @return Duration in milliseconds
+ */
+template <typename T> milliseconds Read(vector<T>& vector, ifstream& input) {
+    auto start = high_resolution_clock::now();
+
+    //Read all data from input stream and add to vector
+    T value;
+    while (getline(input, value)) {
+        vector.push_back(value);
     }
 
     auto end = high_resolution_clock::now();
@@ -96,7 +158,7 @@ template <typename T> milliseconds TimeGeneralSort(T::iterator& begin, T::iterat
  * @param list List to sort
  * @return Duration in milliseconds
  */
-template <typename T> milliseconds TimeListSort(list<T>& list) {
+template <typename T> milliseconds TimeSort(list<T>& list) {
     auto start = high_resolution_clock::now();
 
     list.sort();
