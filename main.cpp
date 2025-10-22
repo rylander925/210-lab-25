@@ -36,7 +36,9 @@ duration.count() references elapsed milliseconds
  * @param input Input stream to read into ADT
  */
 template <typename T> void Read(T::iterator& begin, T::iterator& end, istream& input) {
-
+    for (T::iterator it = begin; it != end; it++) {
+        input >> *it;
+    }
 }
 
 /**
@@ -50,17 +52,30 @@ template <typename T> milliseconds TimeGeneralSort(T::iterator& begin, T::iterat
 }
 
 /**
- * 
+ * Time sort function of a list
+ * @param list List to sort
+ * @return Duration in milliseconds
  */
 template <typename T> milliseconds TimeListSort(list<T>& list) {
 
 }
-template <typename T> milliseconds TimeInsertVector(vector<T>& vector, T value) {
 
-}
+/**
+ * Time how long it takes to add a value to a set
+ * @param set Set to insert a value to
+ * @param value Value to insert into set
+ * @return Duration in milliseconds
+ */
 template <typename T> milliseconds TimeInsertSet(set<T>& set, T value) {
 
 }
+
+/**
+ * Time how long it takes to insert a value at the specified location
+ * @param location Iterator to insert value to
+ * @param value Value to insert
+ * @return Duration in milliseconds
+ */
 template <typename T> milliseconds TimeGeneralInsert(T::iterator& location, T value) {
 
 }
