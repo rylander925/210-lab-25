@@ -25,12 +25,15 @@ template <typename T> milliseconds TimeInsert(vector<T>& vector, T value);
 template <typename T> milliseconds TimeInsert(set<T>& set, T value);
 template <typename T> milliseconds TimeInsert(list<T>& list, T value);
 
-template <typename T> vector<milliseconds> ReadRace(list<T>& list, set<T>& set, vector<T>& vector, string filename);
+template <typename T> vector<milliseconds> ReadRace(list<T>& list, vector<T>& vector, set<T>& set, string filename);
 
 int main() {
     const string FILENAME = "codes.txt";
     list<string> list;
-    
+    set<string> set;
+    vector<string> vect;
+    vector<milliseconds> readDurations, sortDurations, insertDurations;
+    readDurations = ReadRace(list, set, vect, FILENAME);    
 
     return 0;
 }
@@ -43,15 +46,15 @@ duration.count() references elapsed milliseconds
 */
 
 /**
- * Run race for read operations on given list, set vector
- * Returns vector of durations, ordered [0] list, [1] set, [2] vector
+ * Run race for read operations on given list, vector, and set
+ * Returns vector of durations, ordered [0] list, [1] vector, [2] set
  * @param list List to read to
  * @param set Set to read to
  * @param vector Vector to read to
  * @param filename File to read data from
- * @return Vector of durations in milliseconds, ordered list, set, vector
+ * @return Vector of durations in milliseconds, ordered list, vector, set
  */
-template <typename T> vector<milliseconds> ReadRace(list<T>& list, set<T>& set, vector<T>& vector, string filename) {
+template <typename T> vector<milliseconds> ReadRace(list<T>& list, vector<T>& vector, set<T>& set, string filename) {
     vector<milliseconds> durations;
 
     //Verify file opens properly
@@ -69,13 +72,13 @@ template <typename T> vector<milliseconds> ReadRace(list<T>& list, set<T>& set, 
     infile.clear();
     infile.seekg(0);
 
-    //Time read operation for set
-    durations.push_back(Read(set, infile));
-    infile.clear();
-    infile.seekg(0);
-
     //Time read operation for vector
     durations.push_back(Read(vector, infile));
+    infile.clear();
+    infile.seekg(0);
+    
+    //Time read operation for set
+    durations.push_back(Read(set, infile));
 
     infile.close();
 
@@ -139,21 +142,6 @@ template <typename T> milliseconds Read(vector<T>& vector, ifstream& input) {
 }
 
 /**
- * Time sort function on given iterators
- * @param begin Iterator to beginning of ADT
- * @param end Iterator to end of ADT
- * @return Duration in milliseconds
- */
-template <typename T> milliseconds TimeGeneralSort(T::iterator& begin, T::iterator& end) {
-    auto start = high_resolution_clock::now();
-
-    sort(begin, end);
-    
-    auto end = high_resolution_clock::now();
-    return duration_cast<milliseconds>(end - start);
-}
-
-/**
  * Time sort function of a list
  * @param list List to sort
  * @return Duration in milliseconds
@@ -168,12 +156,26 @@ template <typename T> milliseconds TimeSort(list<T>& list) {
 }
 
 /**
+ * Time sort function of a vector
+ * @param vector Vector to sort
+ * @return Duration in milliseconds
+ */
+template <typename T> milliseconds TimeSort(vector<T>& vector) {
+    auto start = high_resolution_clock::now();
+
+    sort(vector);
+
+    auto end = high_resolution_clock::now();
+    return duration_cast<milliseconds>(end - start);
+}
+
+/**
  * Time how long it takes to add a value to a set
  * @param set Set to insert a value to
  * @param value Value to insert into set
  * @return Duration in milliseconds
  */
-template <typename T> milliseconds TimeInsertSet(set<T>& set, T value) {
+template <typename T> milliseconds TimeInsert(set<T>& set, T value) {
     auto start = high_resolution_clock::now();
 
     set.insert(value);
@@ -190,7 +192,7 @@ template <typename T> milliseconds TimeInsertSet(set<T>& set, T value) {
  * @return Duration in milliseconds
  * @todo may want to change iterator to an index, and time the iteration duration as well
  */
-template <typename T> milliseconds TimeInsertVector(vector<T>& vect, T::iterator& location, T value) {
+template <typename T> milliseconds TimeInsert(vector<T>& vect, vector<T>::iterator& location, T value) {
     auto start = high_resolution_clock::now();
 
     vect.insert(location, value);
@@ -201,16 +203,16 @@ template <typename T> milliseconds TimeInsertVector(vector<T>& vect, T::iterator
 
 /**
  * Time how long it takes to insert a value at the specified location
- * @param vector Vector to insert value to
+ * @param l List to insert value to
  * @param location Iterator to insert value to
  * @param value Value to insert
  * @return Duration in milliseconds
  * @todo may want to change iterator to an index, and time the iteration duration as well
  */
-template <typename T> milliseconds TimeInsertList(list<T>& list, T::iterator& location, T value) {
+template <typename T> milliseconds TimeInsert(list<T>& l, list<T>::iterator& location, T value) {
     auto start = high_resolution_clock::now();
 
-    list.insert(location, value);
+    l.insert(location, value);
 
     auto end = high_resolution_clock::now();
     return duration_cast<milliseconds>(end - start);

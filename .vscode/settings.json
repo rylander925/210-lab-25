@@ -19,6 +19,8 @@
         "list": "cpp",
         "xtree": "cpp",
         "istream": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "ostream": "cpp",
+        "set": "cpp"
     }
 }
