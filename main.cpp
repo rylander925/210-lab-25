@@ -4,17 +4,24 @@ IDE Used: Visual Studio Code
 */
 
 #include <iostream>
+#include <iomanip>
+#include <istream>
+#include <fstream>
+#include <vector>
+#include <set>
+#include <list>
 #include <algorithm>
 #include <chrono>
 using namespace std;
 using namespace chrono;
 
-template <typename T> milliseconds Read(T::iterator& begin, T::iterator&, istream& input);
+template <typename T> milliseconds Read(T::iterator& begin, T::iterator& end, istream* input);
 template <typename T> milliseconds TimeGeneralSort(T::iterator& begin, T::iterator& end);
 template <typename T> milliseconds TimeListSort(list<T>& list);
 template <typename T> milliseconds TimeInsertVector(vector<T>& vector, T value);
 template <typename T> milliseconds TimeInsertSet(set<T>& set, T value);
 template <typename T> milliseconds TimeInsertList(T::iterator& location, T value);
+template <typename T> milliseconds ReadCodes(T::iterator& begin, T::iterator& end, string filename);
 
 int main() {
     
@@ -30,17 +37,37 @@ duration.count() references elapsed milliseconds
 */
 
 /**
+ * Open code file and read the codes into given ADT
+ * @param begin Iterator to beginning of ADT
+ * @param end Iterator to end of ADT
+ * @param filename String to read codes from
+ * @return Duration in milliseconds
+ */
+template <typename T> milliseconds ReadCodes(T::iterator& begin, T::iterator& end, string filename) {
+    ifstream infile;
+    infile.open(filename);
+    if (!infile.is_open()) {
+        cout << "Error opening file " << filename << endl;
+        throw ios_base::failure("File open error");
+    }
+
+    istream *input = &infile;
+
+    return Read(begin, end, input);
+}
+
+/**
  * Time how long it takes to read data from an input stream into a ADT using iterators
  * @param begin Iterator to beginning of ADT
  * @param end Iterator to end of ADT
  * @param input Input stream to read into ADT
  * @return Duration in milliseconds
  */
-template <typename T> milliseconds Read(T::iterator& begin, T::iterator& end, istream& input) {
+template <typename T> milliseconds Read(T::iterator& begin, T::iterator& end, istream* input) {
     auto start = high_resolution_clock::now();
 
     for (T::iterator it = begin; it != end; it++) {
-        input >> *it;
+        getline(*input, *it);
     }
 
     auto end = high_resolution_clock::now();
