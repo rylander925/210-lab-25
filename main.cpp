@@ -26,6 +26,10 @@ milliseconds TimeInsert(set<string>& set, string value);
 milliseconds TimeInsert(list<string>& list, string value);
 
 vector<milliseconds> ReadRace(list<string>& list, vector<string>& vect, set<string>& set, string filename);
+vector<milliseconds> SortRace(list<string>& list, vector<string>& vect);
+vector<milliseconds> InsertRace(list<string>&list, vector<string>& vect, set<string>& set, string value);
+
+void OutputRace(vector<milliseconds> durations, string raceName);
 
 int main() {
     const string FILENAME = "codes.txt";
@@ -59,6 +63,16 @@ auto end = high_resolution_clock::now()
 auto duration = duration_cast<milliseconds>(end - start)
 duration.count() references elapsed milliseconds
 */
+
+/**
+ * Returns resulting durations from sorting race between a list and vector. Third parameter (for a set) is -1.
+ * @param list List to sort
+ * @param vect Vector to sort
+ * @return Vector of sorting durations, ordered list, vector, set
+ */
+vector<milliseconds> SortRace(list<string>& list, vector<string>& vect) {
+    return vector<milliseconds>{TimeSort(list), TimeSort(vect), static_cast<milliseconds>(-1)};
+}
 
 /**
  * Run race for read operations on given list, vector, and set
