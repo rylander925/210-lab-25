@@ -1,3 +1,8 @@
+/*
+COMSC-210 | Lab 25 | Rylan Der
+IDE Used: Visual Studio Code
+*/
+
 #include <iostream>
 #include <chrono>
 using namespace std;
