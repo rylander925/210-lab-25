@@ -6,6 +6,14 @@ IDE Used: Visual Studio Code
 #include <iostream>
 #include <chrono>
 using namespace std;
+using namespace chrono;
+
+template <typename T> milliseconds Read(T::iterator& begin, T::iterator& end);
+template <typename T> milliseconds GeneralSort(T::iterator& begin, T::iterator& end);
+template <typename T> milliseconds ListSort(list<T>& list);
+template <typename T> milliseconds InsertVector(vector<T>& vector, T value);
+template <typename T> milliseconds InsertSet(set<T>& set, T value);
+template <typename T> milliseconds GeneralInsert(T::iterator& location, T value);
 
 int main() {
     
