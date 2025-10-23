@@ -14,6 +14,8 @@ IDE Used: Visual Studio Code
 using namespace std;
 using namespace chrono;
 
+const int DEFAULT_SPACING = 10;
+
 milliseconds Read(list<string>& list, ifstream& input);
 milliseconds Read(set<string>& set, ifstream& input);
 milliseconds Read(vector<string>& vect, ifstream& input);
@@ -21,38 +23,29 @@ milliseconds Read(vector<string>& vect, ifstream& input);
 milliseconds TimeSort(vector<string>& vector);
 milliseconds TimeSort(list<string>& list);
 
-milliseconds TimeInsert(vector<string>& vector, string value);
+milliseconds TimeInsert(vector<string>& vector, int index, string value);
 milliseconds TimeInsert(set<string>& set, string value);
-milliseconds TimeInsert(list<string>& list, string value);
+milliseconds TimeInsert(list<string>& list, int index, string value);
 
 vector<milliseconds> ReadRace(list<string>& list, vector<string>& vect, set<string>& set, string filename);
 vector<milliseconds> SortRace(list<string>& list, vector<string>& vect);
 vector<milliseconds> InsertRace(list<string>&list, vector<string>& vect, set<string>& set, string value);
 
-void OutputRace(vector<milliseconds> durations, string raceName, int spacing = 5);
-void OutputRace(vector<string> names, int spacing = 5);
+void OutputRace(vector<milliseconds> durations, string raceName, int spacing = DEFAULT_SPACING);
+void OutputRace(vector<string> names, int spacing = DEFAULT_SPACING);
 
 int main() {
     const string FILENAME = "codes.txt";
     list<string> list;
     set<string> set;
     vector<string> vect;
-    vector<milliseconds> readDurations, sortDurations, insertDurations;
-    readDurations = ReadRace(list, vect, set, FILENAME);
+    
+    OutputRace(vector<string>{"List", "Vector", "Set"});
+    OutputRace(ReadRace(list, vect, set, FILENAME),     "Read");
+    OutputRace(SortRace(list, vect),                    "Sort");
+    OutputRace(InsertRace(list, vect, set, "TESTCODE"), "Insert");
 
-    cout << list.front() << ", " << *(set.begin()) << ", " << vect.front() << endl;
-    for (milliseconds time : readDurations) { cout << time.count() << " "; }
-    cout << endl; 
-
-    auto start = high_resolution_clock::now();
-
-    list.sort();
-
-    auto end = high_resolution_clock::now();
-
-    auto duration = duration_cast<milliseconds>(end - start);
-
-    cout << TimeSort(list).count() << " " << duration.count();
+    
 
 
     return 0;
@@ -108,14 +101,10 @@ void OutputRace(vector<milliseconds> durations, string raceName, int spacing) {
  * @return Vector containing durations of tests, ordered list, vector, set
  */
 vector<milliseconds> InsertRace(list<string>&testList, vector<string>& vect, set<string>& set, string value) {
-    //Iterate to middle of list to test insert only
-    list<string>::iterator listPos = testList.begin();
-    for(int i = 1; i < testList.size() / 2; i++) { listPos++; }
-
     //Run timers and return as an array
     return vector<milliseconds>
-        {   TimeInsert(testList, listPos, value),
-            TimeInsert(vect, (vect.begin() + vect.size() / 2), value),
+        {   TimeInsert(testList, testList.size() / 2, value),
+            TimeInsert(vect, vect.size() / 2, value),
             TimeInsert(set, value)
         };
 }
@@ -272,33 +261,38 @@ milliseconds TimeInsert(set<string>& set, string value) {
 }
 
 /**
- * Time how long it takes to insert a value at the specified location
+ * Time how long it takes to insert a value at the specified index
  * @param vector Vector to insert value to
- * @param location Iterator to insert value to
+ * @param index Index to insert value to
  * @param value Value to insert
  * @return Duration in milliseconds
  * @todo may want to change iterator to an index, and time the iteration duration as well
  */
-milliseconds TimeInsert(vector<string>& vect, vector<string>::iterator& location, string value) {
+milliseconds TimeInsert(vector<string>& vect, int index, string value) {
     auto start = high_resolution_clock::now();
 
-    vect.insert(location, value);
+    vect.insert(vect.begin() + index, value);
 
     auto end = high_resolution_clock::now();
     return duration_cast<milliseconds>(end - start);
 }
 
 /**
- * Time how long it takes to insert a value at the specified location
+ * Time how long it takes to insert a value at the specified position. 
+ * Tracks the time needed to iterate through the list to retrieve the iterator at the proper position.
  * @param l List to insert value to
- * @param location Iterator to insert value to
+ * @param index Index to insert value to
  * @param value Value to insert
  * @return Duration in milliseconds
- * @todo may want to change iterator to an index, and time the iteration duration as well
  */
-milliseconds TimeInsert(list<string>& l, list<string>::iterator& location, string value) {
+milliseconds TimeInsert(list<string>& l, int index, string value) {
     auto start = high_resolution_clock::now();
 
+    //iterate through list to the specified location
+    list<string>::iterator location = l.begin();
+    for (int i = 0; i < index; i++) { location++; }
+
+    //insert element at the specified location
     l.insert(location, value);
 
     auto end = high_resolution_clock::now();
