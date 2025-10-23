@@ -20,34 +20,35 @@ milliseconds Read(list<string>& list, ifstream& input);
 milliseconds Read(set<string>& set, ifstream& input);
 milliseconds Read(vector<string>& vect, ifstream& input);
 
-milliseconds TimeSort(vector<string>& vector);
-milliseconds TimeSort(list<string>& list);
+milliseconds TimeSort(vector<string>& vector, int tests);
+milliseconds TimeSort(list<string>& list, int tests);
 
-milliseconds TimeInsert(vector<string>& vector, int index, string value);
-milliseconds TimeInsert(set<string>& set, string value);
-milliseconds TimeInsert(list<string>& list, int index, string value);
+milliseconds TimeInsert(vector<string>& vector, int index, string value, int tests);
+milliseconds TimeInsert(set<string>& set, string value, int tests);
+milliseconds TimeInsert(list<string>& list, int index, string value, int tests);
 
-milliseconds TimeDelete(vector<string>& vector, int index);
-milliseconds TimeDelete(set<string>& set, int index);
-milliseconds TimeDelete(list<string>& list, int index);
+milliseconds TimeDelete(vector<string>& vector, int index, int tests);
+milliseconds TimeDelete(set<string>& set, int index, int tests);
+milliseconds TimeDelete(list<string>& list, int index, int tests);
 
 vector<milliseconds> ReadRace(list<string>& list, vector<string>& vect, set<string>& set, string filename);
-vector<milliseconds> SortRace(list<string>& list, vector<string>& vect);
-vector<milliseconds> InsertRace(list<string>&list, vector<string>& vect, set<string>& set, string value);
+vector<milliseconds> SortRace(list<string>& list, vector<string>& vect, int tests);
+vector<milliseconds> InsertRace(list<string>&list, vector<string>& vect, set<string>& set, string value, int tests);
 
 void OutputRace(vector<milliseconds> durations, string raceName, int spacing = DEFAULT_SPACING);
 void OutputRace(vector<string> names, int spacing = DEFAULT_SPACING);
 
 int main() {
     const string FILENAME = "codes.txt";
+    const int TESTS = 100;
     list<string> list;
     set<string> set;
     vector<string> vect;
     
     OutputRace(vector<string>{"List", "Vector", "Set"});
-    OutputRace(ReadRace(list, vect, set, FILENAME),     "Read");
-    OutputRace(SortRace(list, vect),                    "Sort");
-    OutputRace(InsertRace(list, vect, set, "TESTCODE"), "Insert");
+    OutputRace(ReadRace(list, vect, set, FILENAME),            "Read");
+    OutputRace(SortRace(list, vect, TESTS),                    "Sort");
+    OutputRace(InsertRace(list, vect, set, "TESTCODE", TESTS), "Insert");
 
     return 0;
 }
@@ -101,12 +102,12 @@ void OutputRace(vector<milliseconds> durations, string raceName, int spacing) {
  * @param value    Value to insert
  * @return Vector containing durations of tests, ordered list, vector, set
  */
-vector<milliseconds> InsertRace(list<string>&testList, vector<string>& vect, set<string>& set, string value) {
+vector<milliseconds> InsertRace(list<string>&testList, vector<string>& vect, set<string>& set, string value, int tests) {
     //Run timers and return as an array
     return vector<milliseconds>
-        {   TimeInsert(testList, testList.size() / 2, value),
-            TimeInsert(vect, vect.size() / 2, value),
-            TimeInsert(set, value)
+        {   TimeInsert(testList, testList.size() / 2, value, tests),
+            TimeInsert(vect, vect.size() / 2, value, tests),
+            TimeInsert(set, value, tests)
         };
 }
 
@@ -116,9 +117,9 @@ vector<milliseconds> InsertRace(list<string>&testList, vector<string>& vect, set
  * @param vect Vector to sort
  * @return Vector of sorting durations, ordered list, vector, set
  */
-vector<milliseconds> SortRace(list<string>& list, vector<string>& vect) {
+vector<milliseconds> SortRace(list<string>& list, vector<string>& vect, int tests) {
     //Run timers and return as an array. The third parameter is set to negative one for a set
-    return vector<milliseconds>{TimeSort(list), TimeSort(vect), static_cast<milliseconds>(-1)};
+    return vector<milliseconds>{TimeSort(list, tests), TimeSort(vect, tests), static_cast<milliseconds>(-1)};
 }
 
 /**
@@ -232,7 +233,7 @@ milliseconds TimeSort(list<string>& l, int tests) {
         testList.sort();
         auto end = high_resolution_clock::now();
 
-        totalTime += duration_cast<milliseconds>(start - end);
+        totalTime += duration_cast<milliseconds>(end - start);
     }
     return totalTime;
 }
@@ -251,7 +252,7 @@ milliseconds TimeSort(vector<string>& vect, int tests) {
         sort(testVect.begin(), testVect.end());
         auto end = high_resolution_clock::now();
 
-        totalTime += duration_cast<milliseconds>(start - end);
+        totalTime += duration_cast<milliseconds>(end - start);
     }
     return totalTime;
 }
