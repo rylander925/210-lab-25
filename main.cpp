@@ -15,7 +15,7 @@ IDE Used: Visual Studio Code
 using namespace std;
 using namespace chrono;
 
-const int DEFAULT_SPACING = 10;
+const int DEFAULT_SPACING = 15;
 
 microseconds Read(list<string>& list, ifstream& input);
 microseconds Read(set<string>& set, ifstream& input);
@@ -50,7 +50,7 @@ int main() {
     set<string> set;
     vector<string> vect;
     
-    OutputRace(vector<string>{"List", "Vector", "Set"});
+    OutputRace(vector<string>{"Operation", "List", "Vector", "Set"});
     OutputRace(ReadRace(list, vect, set, FILENAME, READ_TESTS), "Read");
     OutputRace(SortRace(list, vect, SORT_TESTS), "Sort");
     OutputRace(InsertRace(list, vect, set, "TESTCODE", INSERTION_TESTS), "Insert");
@@ -72,9 +72,6 @@ duration.count() references elapsed microseconds
  * @param spacing   Spacing between table columns 
  */
 void OutputRace(vector<string> names, int spacing) {
-    //Leave empty space for name column
-    cout << left << setw(spacing) << "";
-
     //followed by titles for data columns
     for (string name : names) {
         cout << left << setw(spacing) << name;
