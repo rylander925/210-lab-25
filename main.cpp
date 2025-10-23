@@ -34,6 +34,7 @@ milliseconds TimeDelete(list<string>& list, int index, int tests);
 vector<milliseconds> ReadRace(list<string>& list, vector<string>& vect, set<string>& set, string filename);
 vector<milliseconds> SortRace(list<string>& list, vector<string>& vect, int tests);
 vector<milliseconds> InsertRace(list<string>&list, vector<string>& vect, set<string>& set, string value, int tests);
+vector<milliseconds> DeleteRace(list<string>&list, vector<string>& vect, set<string>& set, int tests);
 
 void OutputRace(vector<milliseconds> durations, string raceName, int spacing = DEFAULT_SPACING);
 void OutputRace(vector<string> names, int spacing = DEFAULT_SPACING);
@@ -49,6 +50,7 @@ int main() {
     OutputRace(ReadRace(list, vect, set, FILENAME),            "Read");
     OutputRace(SortRace(list, vect, TESTS),                    "Sort");
     OutputRace(InsertRace(list, vect, set, "TESTCODE", TESTS), "Insert");
+    OutputRace(DeleteRace(list, vect, set, TESTS),             "Delete");
 
     return 0;
 }
@@ -95,11 +97,29 @@ void OutputRace(vector<milliseconds> durations, string raceName, int spacing) {
 }
 
 /**
+ * Returns durations of deletion operations for a list, vector, and a set
+ * @param testList List to delete from
+ * @param vect     Vector to delete from
+ * @param set      Set to delete from
+ * @param tests    Number of times to repeat test
+ * @return Vector containing durations of tests, ordered list, vector, set
+ */
+vector<milliseconds> DeleteRace(list<string>&testList, vector<string>& vect, set<string>& set, int tests) {
+    //Run timers and return as an array
+    return vector<milliseconds>
+        {   TimeDelete(testList, testList.size() / 2, tests),
+            TimeDelete(vect, vect.size() / 2, tests),
+            TimeDelete(set, set.size() / 2, tests)
+        };
+}
+
+/**
  * Returns durations of insertion operations for a list, vector, and a set
  * @param testList List to insert to
  * @param vect     Vector to insert to
  * @param set      Set to insert to
  * @param value    Value to insert
+ * @param tests    Number of times to repeat test
  * @return Vector containing durations of tests, ordered list, vector, set
  */
 vector<milliseconds> InsertRace(list<string>&testList, vector<string>& vect, set<string>& set, string value, int tests) {
@@ -113,8 +133,9 @@ vector<milliseconds> InsertRace(list<string>&testList, vector<string>& vect, set
 
 /**
  * Returns resulting durations from sorting race between a list and vector. Third parameter (for a set) is -1.
- * @param list List to sort
- * @param vect Vector to sort
+ * @param list  List to sort
+ * @param vect  Vector to sort
+ * @param tests Number of times to repeat test
  * @return Vector of sorting durations, ordered list, vector, set
  */
 vector<milliseconds> SortRace(list<string>& list, vector<string>& vect, int tests) {
@@ -221,7 +242,8 @@ milliseconds Read(vector<string>& vector, ifstream& input) {
 
 /**
  * Time sort function of a list
- * @param list List to sort
+ * @param list  List to sort
+ * @param tests Number of times to repeat test
  * @return Duration in milliseconds
  */
 milliseconds TimeSort(list<string>& l, int tests) {
@@ -241,6 +263,7 @@ milliseconds TimeSort(list<string>& l, int tests) {
 /**
  * Time sort function of a vector
  * @param vector Vector to sort
+ * @param tests  Number of times to repeat test
  * @return Duration in milliseconds
  */
 milliseconds TimeSort(vector<string>& vect, int tests) {
@@ -259,8 +282,9 @@ milliseconds TimeSort(vector<string>& vect, int tests) {
 
 /**
  * Time how long it takes to add a value to a set
- * @param set Set to insert a value to
+ * @param set   Set to insert a value to
  * @param value Value to insert into set
+ * @param tests Number of times to repeat test
  * @return Duration in milliseconds
  */
 milliseconds TimeInsert(set<string>& set, string value, int tests) {
@@ -276,10 +300,10 @@ milliseconds TimeInsert(set<string>& set, string value, int tests) {
 /**
  * Time how long it takes to insert a value at the specified index
  * @param vector Vector to insert value to
- * @param index Index to insert value to
- * @param value Value to insert
+ * @param index  Index to insert value to
+ * @param value  Value to insert
+ * @param tests  Number of times to repeat test
  * @return Duration in milliseconds
- * @todo may want to change iterator to an index, and time the iteration duration as well
  */
 milliseconds TimeInsert(vector<string>& vect, int index, string value, int tests) {
     auto start = high_resolution_clock::now();
@@ -294,9 +318,10 @@ milliseconds TimeInsert(vector<string>& vect, int index, string value, int tests
 /**
  * Time how long it takes to insert a value at the specified position. 
  * Tracks the time needed to iterate through the list to retrieve the iterator at the proper position.
- * @param l List to insert value to
+ * @param l     List to insert value to
  * @param index Index to insert value to
  * @param value Value to insert
+ * @param tests Number of times to repeat test
  * @return Duration in milliseconds
  */
 milliseconds TimeInsert(list<string>& l, int index, string value, int tests) {
@@ -310,6 +335,69 @@ milliseconds TimeInsert(list<string>& l, int index, string value, int tests) {
         //insert element at the specified location
         
             l.insert(location, value);
+    }
+
+    auto end = high_resolution_clock::now();
+    return duration_cast<milliseconds>(end - start);
+}
+
+/**
+ * Time how long it takes to delete a value from a set
+ * @param set Set to delete a value from
+ * @param index Index to delete
+ * @param tests Number of times to repeat test
+ * @return Duration in milliseconds
+ */
+milliseconds TimeDelete(set<string>& testSet, int index, int tests) {
+    auto start = high_resolution_clock::now();
+
+    for(int i = 0; i < tests; i++) {
+        //iterate through list to the specified location
+        set<string>::iterator location = testSet.begin();
+            for (int i = 0; i < index; i++) { location++; }
+        //delete value at specified location
+        testSet.erase(location);
+    }
+
+    auto end = high_resolution_clock::now();
+    return duration_cast<milliseconds>(end - start);
+}
+
+/**
+ * Time how long it takes to delete a value at the specified index
+ * @param vector Vector to delete a value from
+ * @param index  Index to delete a value from
+ * @param tests  Number of times to repeat test
+ * @return Duration in milliseconds
+ */
+milliseconds TimeDelete(vector<string>& vect, int index, int tests) {
+    auto start = high_resolution_clock::now();
+
+    for(int i = 0; i < tests; i++)
+        vect.erase(vect.begin() + index);
+
+    auto end = high_resolution_clock::now();
+    return duration_cast<milliseconds>(end - start);
+}
+
+/**
+ * Time how long it takes to delete a value at the specified position. 
+ * Tracks the time needed to iterate through the list to retrieve the iterator at the proper position.
+ * @param l     List to delete value of
+ * @param index Index to delete
+ * @param tests Number of times to repeat test
+ * @return Duration in milliseconds
+ */
+milliseconds TimeDelete(list<string>& l, int index, string value, int tests) {
+    auto start = high_resolution_clock::now();
+
+    for (int i = 0; i < tests; i++) {
+        //iterate through list to the specified location
+        list<string>::iterator location = l.begin();
+        for (int i = 0; i < index; i++) { location++; }
+
+        //delete element at the specified location
+        l.erase(location);
     }
 
     auto end = high_resolution_clock::now();
