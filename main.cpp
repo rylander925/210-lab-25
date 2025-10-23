@@ -389,7 +389,7 @@ milliseconds TimeDelete(vector<string>& vect, int index, int tests) {
  * @param tests Number of times to repeat test
  * @return Duration in milliseconds
  */
-milliseconds TimeDelete(list<string>& l, int index, string value, int tests) {
+milliseconds TimeDelete(list<string>& l, int index, int tests) {
     auto start = high_resolution_clock::now();
 
     for (int i = 0; i < tests; i++) {
