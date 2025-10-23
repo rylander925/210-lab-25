@@ -27,6 +27,10 @@ milliseconds TimeInsert(vector<string>& vector, int index, string value);
 milliseconds TimeInsert(set<string>& set, string value);
 milliseconds TimeInsert(list<string>& list, int index, string value);
 
+milliseconds TimeDelete(vector<string>& vector, int index);
+milliseconds TimeDelete(set<string>& set, int index);
+milliseconds TimeDelete(list<string>& list, int index);
+
 vector<milliseconds> ReadRace(list<string>& list, vector<string>& vect, set<string>& set, string filename);
 vector<milliseconds> SortRace(list<string>& list, vector<string>& vect);
 vector<milliseconds> InsertRace(list<string>&list, vector<string>& vect, set<string>& set, string value);
@@ -44,9 +48,6 @@ int main() {
     OutputRace(ReadRace(list, vect, set, FILENAME),     "Read");
     OutputRace(SortRace(list, vect),                    "Sort");
     OutputRace(InsertRace(list, vect, set, "TESTCODE"), "Insert");
-
-    
-
 
     return 0;
 }
@@ -222,13 +223,18 @@ milliseconds Read(vector<string>& vector, ifstream& input) {
  * @param list List to sort
  * @return Duration in milliseconds
  */
-milliseconds TimeSort(list<string>& list) {
-    auto start = high_resolution_clock::now();
+milliseconds TimeSort(list<string>& l, int tests) {
+    milliseconds totalTime(0);
+    for (int i = 0; i < tests; i++) {
+        list<string> testList = l;
 
-    list.sort();
+        auto start = high_resolution_clock::now();
+        testList.sort();
+        auto end = high_resolution_clock::now();
 
-    auto end = high_resolution_clock::now();
-    return duration_cast<milliseconds>(end - start);
+        totalTime += duration_cast<milliseconds>(start - end);
+    }
+    return totalTime;
 }
 
 /**
@@ -236,13 +242,18 @@ milliseconds TimeSort(list<string>& list) {
  * @param vector Vector to sort
  * @return Duration in milliseconds
  */
-milliseconds TimeSort(vector<string>& vector) {
-    auto start = high_resolution_clock::now();
+milliseconds TimeSort(vector<string>& vect, int tests) {
+    milliseconds totalTime(0);
+    for (int i = 0; i < tests; i++) {
+        vector<string> testVect = vect;
 
-    sort(vector.begin(), vector.end());
+        auto start = high_resolution_clock::now();
+        sort(testVect.begin(), testVect.end());
+        auto end = high_resolution_clock::now();
 
-    auto end = high_resolution_clock::now();
-    return duration_cast<milliseconds>(end - start);
+        totalTime += duration_cast<milliseconds>(start - end);
+    }
+    return totalTime;
 }
 
 /**
@@ -251,10 +262,11 @@ milliseconds TimeSort(vector<string>& vector) {
  * @param value Value to insert into set
  * @return Duration in milliseconds
  */
-milliseconds TimeInsert(set<string>& set, string value) {
+milliseconds TimeInsert(set<string>& set, string value, int tests) {
     auto start = high_resolution_clock::now();
 
-    set.insert(value);
+    for(int i = 0; i < tests; i++)
+        set.insert(value);
 
     auto end = high_resolution_clock::now();
     return duration_cast<milliseconds>(end - start);
@@ -268,10 +280,11 @@ milliseconds TimeInsert(set<string>& set, string value) {
  * @return Duration in milliseconds
  * @todo may want to change iterator to an index, and time the iteration duration as well
  */
-milliseconds TimeInsert(vector<string>& vect, int index, string value) {
+milliseconds TimeInsert(vector<string>& vect, int index, string value, int tests) {
     auto start = high_resolution_clock::now();
 
-    vect.insert(vect.begin() + index, value);
+    for(int i = 0; i < tests; i++)
+        vect.insert(vect.begin() + index, value);
 
     auto end = high_resolution_clock::now();
     return duration_cast<milliseconds>(end - start);
@@ -285,15 +298,18 @@ milliseconds TimeInsert(vector<string>& vect, int index, string value) {
  * @param value Value to insert
  * @return Duration in milliseconds
  */
-milliseconds TimeInsert(list<string>& l, int index, string value) {
+milliseconds TimeInsert(list<string>& l, int index, string value, int tests) {
     auto start = high_resolution_clock::now();
 
-    //iterate through list to the specified location
-    list<string>::iterator location = l.begin();
-    for (int i = 0; i < index; i++) { location++; }
+    for (int i = 0; i < tests; i++) {
+        //iterate through list to the specified location
+        list<string>::iterator location = l.begin();
+        for (int i = 0; i < index; i++) { location++; }
 
-    //insert element at the specified location
-    l.insert(location, value);
+        //insert element at the specified location
+        
+            l.insert(location, value);
+    }
 
     auto end = high_resolution_clock::now();
     return duration_cast<milliseconds>(end - start);
