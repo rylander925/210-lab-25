@@ -65,6 +65,27 @@ duration.count() references elapsed milliseconds
 */
 
 /**
+ * Returns durations of insertion operations for a list, vector, and a set
+ * @param testList List to insert to
+ * @param vect     Vector to insert to
+ * @param set      Set to insert to
+ * @param value    Value to insert
+ * @return Vector containing durations of tests, ordered list, vector, set
+ */
+vector<milliseconds> InsertRace(list<string>&testList, vector<string>& vect, set<string>& set, string value) {
+    //Iterate to middle of list to test insert only
+    list<string>::iterator listPos = testList.begin();
+    for(int i = 1; i < testList.size() / 2; i++) { listPos++; }
+
+    //Run timers and return as an array
+    return vector<milliseconds>
+        {   TimeInsert(testList, listPos, value),
+            TimeInsert(vect, (vect.begin() + vect.size() / 2), value),
+            TimeInsert(set, value)
+        };
+}
+
+/**
  * Returns resulting durations from sorting race between a list and vector. Third parameter (for a set) is -1.
  * @param list List to sort
  * @param vect Vector to sort
