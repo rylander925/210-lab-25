@@ -29,7 +29,8 @@ vector<milliseconds> ReadRace(list<string>& list, vector<string>& vect, set<stri
 vector<milliseconds> SortRace(list<string>& list, vector<string>& vect);
 vector<milliseconds> InsertRace(list<string>&list, vector<string>& vect, set<string>& set, string value);
 
-void OutputRace(vector<milliseconds> durations, string raceName);
+void OutputRace(vector<milliseconds> durations, string raceName, int spacing = 5);
+void OutputRace(vector<string> names, int spacing = 5);
 
 int main() {
     const string FILENAME = "codes.txt";
@@ -65,6 +66,40 @@ duration.count() references elapsed milliseconds
 */
 
 /**
+ * Outputs race names as a header table row
+ * @param names     Names to be displayed above table columns
+ * @param spacing   Spacing between table columns 
+ */
+void OutputRace(vector<string> names, int spacing) {
+    //Leave empty space for name column
+    cout << left << setw(spacing) << "";
+
+    //followed by titles for data columns
+    for (string name : names) {
+        cout << left << setw(spacing) << name;
+    }
+    cout << endl;
+}
+
+
+/**
+ * Outputs race durations as a table row: name followed by durations separated by spaces
+ * @param durations List of durations, ordered list, vector, set
+ * @param raceName  Name to be displayed to the left of the durations
+ * @param spacing   Spacing between table columns 
+ */
+void OutputRace(vector<milliseconds> durations, string raceName, int spacing) {
+    //output race name
+    cout << left << setw(spacing) << raceName;
+
+    //followed by entries
+    for (milliseconds duration : durations) {
+        cout << left << setw(spacing) << duration.count();
+    }
+    cout << endl;
+}
+
+/**
  * Returns durations of insertion operations for a list, vector, and a set
  * @param testList List to insert to
  * @param vect     Vector to insert to
@@ -92,6 +127,7 @@ vector<milliseconds> InsertRace(list<string>&testList, vector<string>& vect, set
  * @return Vector of sorting durations, ordered list, vector, set
  */
 vector<milliseconds> SortRace(list<string>& list, vector<string>& vect) {
+    //Run timers and return as an array. The third parameter is set to negative one for a set
     return vector<milliseconds>{TimeSort(list), TimeSort(vect), static_cast<milliseconds>(-1)};
 }
 
