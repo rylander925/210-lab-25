@@ -32,7 +32,7 @@ milliseconds TimeDelete(vector<string>& vector, int index, int tests);
 milliseconds TimeDelete(set<string>& set, int index, int tests);
 milliseconds TimeDelete(list<string>& list, int index, int tests);
 
-vector<milliseconds> ReadRace(list<string>& list, vector<string>& vect, set<string>& set, string filename);
+vector<milliseconds> ReadRace(list<string>& list, vector<string>& vect, set<string>& set, string filename, int tests);
 vector<milliseconds> SortRace(list<string>& list, vector<string>& vect, int tests);
 vector<milliseconds> InsertRace(list<string>&list, vector<string>& vect, set<string>& set, string value, int tests);
 vector<milliseconds> DeleteRace(list<string>&list, vector<string>& vect, set<string>& set, int tests);
@@ -48,10 +48,10 @@ int main() {
     vector<string> vect;
     
     OutputRace(vector<string>{"List", "Vector", "Set"});
-    OutputRace(ReadRace(list, vect, set, FILENAME),            "Read");
-    OutputRace(SortRace(list, vect, TESTS),                    "Sort");
+    OutputRace(ReadRace(list, vect, set, FILENAME, 10), "Read");
+    OutputRace(SortRace(list, vect, TESTS), "Sort");
     OutputRace(InsertRace(list, vect, set, "TESTCODE", TESTS), "Insert");
-    OutputRace(DeleteRace(list, vect, set, TESTS),             "Delete");
+    OutputRace(DeleteRace(list, vect, set, TESTS), "Delete");
 
     return 0;
 }
@@ -153,8 +153,11 @@ vector<milliseconds> SortRace(list<string>& list, vector<string>& vect, int test
  * @param filename File to read data from
  * @return Vector of durations in milliseconds, ordered list, vector, set
  */
-vector<milliseconds> ReadRace(list<string>& list, vector<string>& vect, set<string>& set, string filename) {
+vector<milliseconds> ReadRace(list<string>& testList, vector<string>& testVector, set<string>& testSet, string filename, int tests) {
     vector<milliseconds> durations;
+    list<string> dummyList;
+    vector<string> dummyVect;
+    set<string> dummySet;
 
     //Verify file opens properly
     ifstream infile;
@@ -164,20 +167,25 @@ vector<milliseconds> ReadRace(list<string>& list, vector<string>& vect, set<stri
         throw ios_base::failure("File open error");
     }
 
-    //Time read operation for the list
-    durations.push_back(Read(list, infile));
+    for (int i = 0; i < tests; i++) {
+        //Time read operation for the list
+        //Use a dummy list for repeat tests
+        durations.push_back(Read((i == 0 ? testList : dummyList), infile)); 
 
-    //Reset file stream to beginning
-    infile.clear();
-    infile.seekg(0);
+        //Reset file stream to beginning
+        infile.clear();
+        infile.seekg(0);
 
-    //Time read operation for vector
-    durations.push_back(Read(vect, infile));
-    infile.clear();
-    infile.seekg(0);
-    
-    //Time read operation for set
-    durations.push_back(Read(set, infile));
+        //Time read operation for vector
+        durations.push_back(Read((i == 0) ? testVector : dummyVect, infile));
+        infile.clear();
+        infile.seekg(0);
+        
+        //Time read operation for set
+        durations.push_back(Read((i == 0) ? testSet : dummySet, infile));
+        infile.clear();
+        infile.seekg(0);
+    }
 
     infile.close();
 
