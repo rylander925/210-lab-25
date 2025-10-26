@@ -79,7 +79,6 @@ void OutputRace(vector<string> names, int spacing) {
     cout << endl;
 }
 
-
 /**
  * Outputs race durations as a table row: name followed by durations separated by spaces
  * @param durations List of durations, ordered list, vector, set
