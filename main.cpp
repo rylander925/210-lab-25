@@ -72,7 +72,7 @@ duration.count() references elapsed microseconds
  * @param spacing   Spacing between table columns 
  */
 void OutputRace(vector<string> names, int spacing) {
-    //followed by titles for data columns
+    //Output titles for table columns
     for (string name : names) {
         cout << left << setw(spacing) << name;
     }
@@ -105,7 +105,7 @@ void OutputRace(vector<microseconds> durations, string raceName, int spacing) {
  * @return Vector containing durations of tests, ordered list, vector, set
  */
 vector<microseconds> DeleteRace(list<string>&testList, vector<string>& vect, set<string>& set, int tests) {
-    //Run timers and return as an array
+    //Run timers for each delete operation and return times as an array
     return vector<microseconds>
         {   TimeDelete(testList, testList.size() / 2, tests),
             TimeDelete(vect, vect.size() / 2, tests),
@@ -132,7 +132,7 @@ vector<microseconds> InsertRace(list<string>&testList, vector<string>& vect, set
 }
 
 /**
- * Returns resulting durations from sorting race between a list and vector. Third parameter (for a set) is -1.
+ * Returns resulting durations from sorting race between a list and vector. Third duration (for a set) is -1.
  * @param list  List to sort
  * @param vect  Vector to sort
  * @param tests Number of times to repeat test
@@ -140,16 +140,22 @@ vector<microseconds> InsertRace(list<string>&testList, vector<string>& vect, set
  */
 vector<microseconds> SortRace(list<string>& list, vector<string>& vect, int tests) {
     //Run timers and return as an array. The third parameter is set to negative one for a set
-    return vector<microseconds>{TimeSort(list, tests), TimeSort(vect, tests), static_cast<microseconds>(-1)};
+    return vector<microseconds>
+        {
+            TimeSort(list, tests), 
+            TimeSort(vect, tests), 
+            static_cast<microseconds>(-1)
+        };
 }
 
 /**
  * Run race for read operations on given list, vector, and set
  * Returns vector of durations, ordered [0] list, [1] vector, [2] set
- * @param list List to read to
- * @param set Set to read to
- * @param vector Vector to read to
- * @param filename File to read data from
+ * @param testList      List to read to
+ * @param testSet       Set to read to
+ * @param testVector    Vector to read to
+ * @param filename      File to read data from
+ * @param tests         Number of times to repeat tests
  * @return Vector of durations in microseconds, ordered list, vector, set
  */
 vector<microseconds> ReadRace(list<string>& testList, vector<string>& testVector, set<string>& testSet, string filename, int tests) {
@@ -190,7 +196,6 @@ vector<microseconds> ReadRace(list<string>& testList, vector<string>& testVector
         dummyVect.clear();
         dummySet.clear();
     }
-
     infile.close();
 
     return durations;
@@ -255,17 +260,21 @@ microseconds Read(vector<string>& vector, ifstream& input) {
 
 /**
  * Time sort function of a list
- * @param list  List to sort
+ * @param l  List to sort
  * @param tests Number of times to repeat test
  * @return Duration in microseconds
  */
 microseconds TimeSort(list<string>& l, int tests) {
+    //accumulator for multiple tests
     microseconds totalTime(0);
+
     for (int i = 0; i < tests; i++) {
+        //create a dummy list for multiple tests
         list<string> testList = l;
 
         auto start = high_resolution_clock::now();
-        testList.sort();
+        //sort the provided list, then the dummy list for repeats
+        (i == 0 ? l : testList).sort();
         auto end = high_resolution_clock::now();
 
         totalTime += duration_cast<microseconds>(end - start);
@@ -280,8 +289,10 @@ microseconds TimeSort(list<string>& l, int tests) {
  * @return Duration in microseconds
  */
 microseconds TimeSort(vector<string>& vect, int tests) {
+    //accumulator to sum durations accross multiple tests
     microseconds totalTime(0);
-    for (int i = 0; i < tests; i++) {
+    for (int i = 0; i < tests - 1; i++) {
+        //initialize a
         vector<string> testVect = vect;
 
         auto start = high_resolution_clock::now();
