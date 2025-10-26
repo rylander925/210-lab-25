@@ -265,20 +265,27 @@ microseconds Read(vector<string>& vector, ifstream& input) {
  * @return Duration in microseconds
  */
 microseconds TimeSort(list<string>& l, int tests) {
-    //accumulator for multiple tests
+    //accumulator to sum durations of multiple tests
     microseconds totalTime(0);
 
-    for (int i = 0; i < tests; i++) {
+    //sort using a dummy variable for all but last test
+    for (int i = 0; i < tests - 1; i++) {
         //create a dummy list for multiple tests
         list<string> testList = l;
 
         auto start = high_resolution_clock::now();
-        //sort the provided list, then the dummy list for repeats
-        (i == 0 ? l : testList).sort();
+        testList.sort();
         auto end = high_resolution_clock::now();
 
         totalTime += duration_cast<microseconds>(end - start);
     }
+
+    //sort using actual list for final test
+    auto start = high_resolution_clock::now();
+    l.sort();
+    auto end = high_resolution_clock::now();
+    totalTime += duration_cast<microseconds>(end - start);
+
     return totalTime;
 }
 
@@ -291,16 +298,27 @@ microseconds TimeSort(list<string>& l, int tests) {
 microseconds TimeSort(vector<string>& vect, int tests) {
     //accumulator to sum durations accross multiple tests
     microseconds totalTime(0);
+
+    //test with a dummy vector for all but last test
     for (int i = 0; i < tests - 1; i++) {
-        //initialize a
+        //initialize a dummy vector
         vector<string> testVect = vect;
 
+        //time sort operation for dummy tests
         auto start = high_resolution_clock::now();
         sort(testVect.begin(), testVect.end());
         auto end = high_resolution_clock::now();
 
         totalTime += duration_cast<microseconds>(end - start);
     }
+
+    //sort the actual vector for the final test
+    auto start = high_resolution_clock::now();
+    sort(vect.begin(), vect.end());
+    auto end = high_resolution_clock::now();
+
+    totalTime += duration_cast<microseconds>(end - start);
+
     return totalTime;
 }
 
@@ -312,9 +330,10 @@ microseconds TimeSort(vector<string>& vect, int tests) {
  * @return Duration in microseconds
  */
 microseconds TimeInsert(set<string>& set, string value, int tests) {
+    //start timer and insert based on # of tests
     auto start = high_resolution_clock::now();
 
-    for(int i = 0; i < tests; i++)
+    for(int i = 0; i < tests; i++) \
         set.insert(value);
 
     auto end = high_resolution_clock::now();
@@ -323,16 +342,17 @@ microseconds TimeInsert(set<string>& set, string value, int tests) {
 
 /**
  * Time how long it takes to insert a value at the specified index
- * @param vector Vector to insert value to
+ * @param vect Vector to insert value to
  * @param index  Index to insert value to
  * @param value  Value to insert
  * @param tests  Number of times to repeat test
  * @return Duration in microseconds
  */
 microseconds TimeInsert(vector<string>& vect, int index, string value, int tests) {
+    //time insert operations based on # of tests
     auto start = high_resolution_clock::now();
 
-    for(int i = 0; i < tests; i++)
+    for(int i = 0; i < tests; i++) 
         vect.insert(vect.begin() + index, value);
 
     auto end = high_resolution_clock::now();
@@ -349,17 +369,16 @@ microseconds TimeInsert(vector<string>& vect, int index, string value, int tests
  * @return Duration in microseconds
  */
 microseconds TimeInsert(list<string>& l, int index, string value, int tests) {
-    //iterate through list to the specified location
+    //iterate through list to the specified location before starting timer
     list<string>::iterator location = l.begin();
-    for (int i = 0; i < index; i++) { location++; }
+    for (int i = 0; i < index; i++) 
+        location++;
+
+    //start timer and time insert operations based on number of tests
     auto start = high_resolution_clock::now();
 
-    for (int i = 0; i < tests; i++) {
-
-        //insert element at the specified location
-        
-            l.insert(location, value);
-    }
+    for (int i = 0; i < tests; i++) 
+        l.insert(location, value);
 
     auto end = high_resolution_clock::now();
     return duration_cast<microseconds>(end - start);
@@ -367,21 +386,22 @@ microseconds TimeInsert(list<string>& l, int index, string value, int tests) {
 
 /**
  * Time how long it takes to delete a value from a set
- * @param set Set to delete a value from
+ * @param testSet Set to delete a value from
  * @param index Index to delete
  * @param tests Number of times to repeat test
  * @return Duration in microseconds
  */
 microseconds TimeDelete(set<string>& testSet, int index, int tests) {
-    //iterate through set to the specified location
+    //iterate through set to the specified location before starting timer
     set<string>::iterator location = testSet.begin();
-        for (int i = 0; i < index; i++) { location++; }
+    for (int i = 0; i < index; i++) 
+        location++;
+
+    //start timer and time delete operations based on number of tests
     auto start = high_resolution_clock::now();
 
-    for(int i = 0; i < tests; i++) {
-        //delete value at specified location
+    for(int i = 0; i < tests; i++) 
         testSet.erase(location);
-    }
 
     auto end = high_resolution_clock::now();
     return duration_cast<microseconds>(end - start);
