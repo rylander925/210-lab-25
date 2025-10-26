@@ -46,10 +46,12 @@ int main() {
     const int SORT_TESTS = 1;
     const int INSERTION_TESTS = 1;
     const int DELETION_TESTS = 1;
+
     list<string> list;
     set<string> set;
     vector<string> vect;
     
+    //Runs races and outputs as a table
     OutputRace(vector<string>{"Operation", "List", "Vector", "Set"});
     OutputRace(ReadRace(list, vect, set, FILENAME, READ_TESTS), "Read");
     OutputRace(SortRace(list, vect, SORT_TESTS), "Sort");
@@ -222,7 +224,7 @@ microseconds Read(list<string>& list, ifstream& input) {
 
 /**
  * Time how long it takes to read data into a set
- * @param set Set to read data to
+ * @param set   Set to read data to
  * @param input Input stream to read from
  * @return Duration in microseconds
  */
@@ -242,7 +244,7 @@ microseconds Read(set<string>& set, ifstream& input) {
 /**
  * Time how long it takes to read data into a vector
  * @param vector Vector to read data to
- * @param input Input stream to read from
+ * @param input  Input stream to read from
  * @return Duration in microseconds
  */
 microseconds Read(vector<string>& vector, ifstream& input) {
@@ -260,7 +262,7 @@ microseconds Read(vector<string>& vector, ifstream& input) {
 
 /**
  * Time sort function of a list
- * @param l  List to sort
+ * @param l     List to sort
  * @param tests Number of times to repeat test
  * @return Duration in microseconds
  */
@@ -342,7 +344,7 @@ microseconds TimeInsert(set<string>& set, string value, int tests) {
 
 /**
  * Time how long it takes to insert a value at the specified index
- * @param vect Vector to insert value to
+ * @param vect   Vector to insert value to
  * @param index  Index to insert value to
  * @param value  Value to insert
  * @param tests  Number of times to repeat test
@@ -387,9 +389,10 @@ microseconds TimeInsert(list<string>& l, int index, string value, int tests) {
 /**
  * Time how long it takes to delete a value from a set
  * @param testSet Set to delete a value from
- * @param index Index to delete
- * @param tests Number of times to repeat test
+ * @param index   Index to delete
+ * @param tests   Number of times to repeat test
  * @return Duration in microseconds
+ * @note Does not check for an empty set
  */
 microseconds TimeDelete(set<string>& testSet, int index, int tests) {
     //iterate through set to the specified location before starting timer
@@ -409,12 +412,14 @@ microseconds TimeDelete(set<string>& testSet, int index, int tests) {
 
 /**
  * Time how long it takes to delete a value at the specified index
- * @param vector Vector to delete a value from
+ * @param vect   Vector to delete a value from
  * @param index  Index to delete a value from
  * @param tests  Number of times to repeat test
  * @return Duration in microseconds
+ * @note Does not check whether vector is empty
  */
 microseconds TimeDelete(vector<string>& vect, int index, int tests) {
+    //start timer and time delete operations based on number of tests
     auto start = high_resolution_clock::now();
 
     for(int i = 0; i < tests; i++)
@@ -431,18 +436,18 @@ microseconds TimeDelete(vector<string>& vect, int index, int tests) {
  * @param index Index to delete
  * @param tests Number of times to repeat test
  * @return Duration in microseconds
+ * @note Does not check whether list is empty
  */
 microseconds TimeDelete(list<string>& l, int index, int tests) {
     //iterate through list to the specified location; does not start timer
     list<string>::iterator location = l.begin();
-    for (int i = 0; i < index; i++) { location++; }
+    for (int i = 0; i < index; i++) location++;
 
+    //starts timer and times delete operations
     auto start = high_resolution_clock::now();
 
-    for (int i = 0; i < tests; i++) {
-        //delete element at the specified location
+    for (int i = 0; i < tests; i++) 
         l.erase(location);
-    }
 
     auto end = high_resolution_clock::now();
     return duration_cast<microseconds>(end - start);
